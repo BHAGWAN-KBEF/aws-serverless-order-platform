@@ -158,21 +158,22 @@ jobs:
             -var="alert_email=${{ secrets.ALERT_EMAIL }}" \
             -var="slack_webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}"
       
-      - name: Run Integration Tests
+      - name: Get API Endpoint
+        id: get-endpoint
         run: |
           cd infra
-          terraform output api_endpoint
-          API_URL=$(terraform output -raw api_endpoint)
-          echo "API Endpoint: $API_URL"
+          echo "endpoint=$(terraform output -raw api_endpoint)" >> $GITHUB_OUTPUT
+      
+      - name: Run Integration Tests
+        run: |
+          echo "Testing API: ${{ steps.get-endpoint.outputs.endpoint }}"
           
-          # Test the API
-          RESPONSE=$(curl -s -X POST "${API_URL}/orders" \
+          RESPONSE=$(curl -s -X POST "${{ steps.get-endpoint.outputs.endpoint }}/orders" \
             -H "Content-Type: application/json" \
             -d '{"customer_id":"CI-TEST","items":[{"item":"TestItem","quantity":1}]}')
           
           echo "API Response: $RESPONSE"
           
-          # Check if response contains order_id
           if echo "$RESPONSE" | grep -q "order_id"; then
             echo "✅ Integration test PASSED - Order created successfully"
           else
