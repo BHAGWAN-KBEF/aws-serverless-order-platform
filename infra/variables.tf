@@ -5,7 +5,7 @@ variable "region" {
 
 variable "env" {
   type    = string
-  default = "dev"
+  default = "prod"
 }
 
 variable "alert_email" {
