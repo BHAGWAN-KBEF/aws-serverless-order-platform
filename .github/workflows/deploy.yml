@@ -90,6 +90,7 @@ jobs:
         run: |
           cd infra
           terraform init
+          terraform get -update
       
       - name: Terraform Plan
         run: |
@@ -150,6 +151,7 @@ jobs:
         run: |
           cd infra
           terraform init
+          terraform get -update
       
       - name: Terraform Apply
         run: |
@@ -205,6 +207,7 @@ jobs:
         run: |
           cd infra
           terraform init
+          terraform get -update
       
       - name: Terraform Destroy
         run: |
