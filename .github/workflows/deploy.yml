@@ -5,6 +5,16 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'deploy'
+        type: choice
+        options:
+        - deploy
+        - destroy
 
 env:
   AWS_REGION: us-east-1
@@ -153,7 +163,37 @@ jobs:
           cd infra
           API_ENDPOINT=$(terraform output -raw api_endpoint)
           echo "Testing API endpoint: $API_ENDPOINT"
-          curl -X POST "$API_ENDPOINT/orders" \
+          curl -f -X POST "$API_ENDPOINT/orders" \
             -H "Content-Type: application/json" \
-            -d '{"customer_id":"CI-TEST","items":[{"item":"TestItem","quantity":1}]}' \
-            -w "\nHTTP Status: %{http_code}\n"
+            -d '{"customer_id":"CI-TEST","items":[{"item":"TestItem","quantity":1}]}'
+          echo "Integration test completed successfully"
+
+  destroy:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.action == 'destroy'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Terraform Init
+        run: |
+          cd infra
+          terraform init
+      
+      - name: Terraform Destroy
+        run: |
+          cd infra
+          terraform destroy -auto-approve \
+            -var="alert_email=${{ secrets.ALERT_EMAIL }}" \
+            -var="slack_webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}"
