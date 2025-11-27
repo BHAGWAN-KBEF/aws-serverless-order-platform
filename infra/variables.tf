@@ -5,7 +5,7 @@ variable "region" {
 
 variable "env" {
   type    = string
-  default = "cicd"
+  default = "final"
 }
 
 variable "alert_email" {
