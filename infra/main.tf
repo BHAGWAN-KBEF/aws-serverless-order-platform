@@ -111,7 +111,7 @@ resource "aws_lambda_function" "api_handler" {
   role             = aws_iam_role.lambda_role.arn
   handler          = "app.lambda_handler"
   runtime          = "python3.10"
-  source_code_hash = filebase64sha256("${path.module}/api_handler.zip")
+  source_code_hash = try(filebase64sha256("${path.module}/api_handler.zip"), null)
 
   environment {
     variables = {
@@ -132,7 +132,7 @@ resource "aws_lambda_function" "order_worker" {
   role             = aws_iam_role.lambda_role.arn
   handler          = "worker.lambda_handler"
   runtime          = "python3.10"
-  source_code_hash = filebase64sha256("${path.module}/order_worker.zip")
+  source_code_hash = try(filebase64sha256("${path.module}/order_worker.zip"), null)
 
   environment {
     variables = {
@@ -347,7 +347,7 @@ resource "aws_lambda_function" "slack_notifier" {
   role             = aws_iam_role.lambda_role.arn
   handler          = "slack_notifier.lambda_handler"
   runtime          = "python3.10"
-  source_code_hash = filebase64sha256("${path.module}/slack_notifier.zip")
+  source_code_hash = try(filebase64sha256("${path.module}/slack_notifier.zip"), null)
 
   environment {
     variables = {
