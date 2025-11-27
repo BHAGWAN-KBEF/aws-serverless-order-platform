@@ -161,12 +161,24 @@ jobs:
       - name: Run Integration Tests
         run: |
           cd infra
-          API_ENDPOINT=$(terraform output -raw api_endpoint)
-          echo "Testing API endpoint: $API_ENDPOINT"
-          curl -f -X POST "$API_ENDPOINT/orders" \
+          terraform output api_endpoint
+          API_URL=$(terraform output -raw api_endpoint)
+          echo "API Endpoint: $API_URL"
+          
+          # Test the API
+          RESPONSE=$(curl -s -X POST "${API_URL}/orders" \
             -H "Content-Type: application/json" \
-            -d '{"customer_id":"CI-TEST","items":[{"item":"TestItem","quantity":1}]}'
-          echo "Integration test completed successfully"
+            -d '{"customer_id":"CI-TEST","items":[{"item":"TestItem","quantity":1}]}')
+          
+          echo "API Response: $RESPONSE"
+          
+          # Check if response contains order_id
+          if echo "$RESPONSE" | grep -q "order_id"; then
+            echo "✅ Integration test PASSED - Order created successfully"
+          else
+            echo "❌ Integration test FAILED - No order_id in response"
+            exit 1
+          fi
 
   destroy:
     runs-on: ubuntu-latest
