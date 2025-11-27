@@ -150,7 +150,10 @@ jobs:
       
       - name: Run Integration Tests
         run: |
-          API_ENDPOINT=$(cd infra && terraform output -raw api_endpoint)
+          cd infra
+          API_ENDPOINT=$(terraform output -raw api_endpoint)
+          echo "Testing API endpoint: $API_ENDPOINT"
           curl -X POST "$API_ENDPOINT/orders" \
             -H "Content-Type: application/json" \
-            -d '{"customer_id":"CI-TEST","items":[{"item":"TestItem","quantity":1}]}'
+            -d '{"customer_id":"CI-TEST","items":[{"item":"TestItem","quantity":1}]}' \
+            -w "\nHTTP Status: %{http_code}\n"
