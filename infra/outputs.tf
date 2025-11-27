@@ -1,23 +1,23 @@
 output "api_endpoint" {
-  value = aws_apigatewayv2_api.http_api.api_endpoint
-}
-
-output "sqs_url" {
-  value = aws_sqs_queue.order_queue.id
-}
-
-output "dynamodb_table" {
-  value = aws_dynamodb_table.orders.name
-}
-
-output "sqs_dlq_url" {
-  value = aws_sqs_queue.order_dlq.id
-}
-
-output "sqs_dlq_arn" {
-  value = aws_sqs_queue.order_dlq.arn
+  value = module.api_gateway.api_endpoint
 }
 
 output "dashboard_url" {
-  value = "https://${var.region}.console.aws.amazon.com/cloudwatch/home?region=${var.region}#dashboards:name=${aws_cloudwatch_dashboard.order_service.dashboard_name}"
+  value = module.monitoring.dashboard_url
+}
+
+output "dynamodb_table" {
+  value = module.storage.dynamodb_table_name
+}
+
+output "sqs_url" {
+  value = module.storage.sqs_queue_url
+}
+
+output "sqs_dlq_url" {
+  value = module.storage.sqs_dlq_url
+}
+
+output "sqs_dlq_arn" {
+  value = module.storage.sqs_dlq_arn
 }

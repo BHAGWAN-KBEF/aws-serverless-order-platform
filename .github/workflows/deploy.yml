@@ -162,7 +162,9 @@ jobs:
         id: get-endpoint
         run: |
           cd infra
-          echo "endpoint=$(terraform output -raw api_endpoint)" >> $GITHUB_OUTPUT
+          API_URL=$(terraform output -raw api_endpoint)
+          echo "endpoint=$API_URL" >> $GITHUB_OUTPUT
+          echo "API Endpoint extracted: $API_URL"
       
       - name: Run Integration Tests
         run: |
