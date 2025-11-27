@@ -67,6 +67,7 @@ A production-ready, serverless event-driven order processing system built on AWS
 3. **Deploy infrastructure**
    ```bash
    terraform init
+   terraform get -update  # Download modules
    terraform plan
    terraform apply
    ```
@@ -164,10 +165,19 @@ event-driven-order-service/
 │   └── workflows/
 │       └── deploy.yml          # CI/CD pipeline
 ├── infra/
-│   ├── main.tf                 # Main Terraform configuration
+│   ├── main.tf                 # Main Terraform configuration (modular)
 │   ├── variables.tf            # Input variables
 │   ├── outputs.tf              # Output values
 │   └── terraform.tfvars.example
+├── modules/                    # Terraform modules
+│   ├── lambda/
+│   │   └── main.tf             # Lambda functions module
+│   ├── storage/
+│   │   └── main.tf             # DynamoDB and SQS module
+│   ├── api-gateway/
+│   │   └── main.tf             # API Gateway module
+│   └── monitoring/
+│       └── main.tf             # CloudWatch and SNS module
 ├── src/
 │   ├── api_handler/
 │   │   ├── app.py              # API Lambda function
@@ -245,6 +255,34 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Documentation**: Check the [docs/](docs/) directory
 - **Issues**: Create an issue on GitHub
 - **Discussions**: Use GitHub Discussions for questions
+
+## 🗑️ Cleanup
+
+### Destroy Infrastructure
+```bash
+cd infra
+terraform destroy
+```
+
+### Manual Cleanup (if needed)
+If Terraform state is out of sync, manually delete resources:
+```bash
+# List and delete Lambda functions
+aws lambda list-functions --query 'Functions[].FunctionName'
+aws lambda delete-function --function-name <function-name>
+
+# List and delete DynamoDB tables
+aws dynamodb list-tables
+aws dynamodb delete-table --table-name <table-name>
+
+# List and delete SQS queues
+aws sqs list-queues
+aws sqs delete-queue --queue-url <queue-url>
+
+# List and delete API Gateways
+aws apigatewayv2 get-apis
+aws apigatewayv2 delete-api --api-id <api-id>
+```
 
 ## 🏆 Acknowledgments
 
