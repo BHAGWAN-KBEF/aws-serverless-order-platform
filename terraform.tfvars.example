@@ -1,0 +1,7 @@
+# AWS Configuration
+region = "us-east-1"
+env    = "dev"
+
+# Alerting Configuration
+alert_email        = "your-email@example.com"
+slack_webhook_url  = "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
